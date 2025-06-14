@@ -36,13 +36,8 @@
       options: {
         responsive: true,
         scales: {
-          x: {
-            title: { display: true, text: 'Temps' }
-          },
-          y: {
-            beginAtZero: true,
-            title: { display: true, text: '°C' }
-          }
+          x: { title: { display: true, text: 'Temps' } },
+          y: { beginAtZero: true, title: { display: true, text: '°C' } }
         }
       }
     });
@@ -54,12 +49,10 @@
         puissance: (90 + Math.random() * 20).toFixed(1)
       };
 
-      // Mettre à jour les valeurs textuelles
       document.getElementById('temp').textContent = data.temperature;
       document.getElementById('volt').textContent = data.tension;
       document.getElementById('power').textContent = data.puissance;
 
-      // Mettre à jour le graphique
       const time = new Date().toLocaleTimeString();
       tempChart.data.labels.push(time);
       tempChart.data.datasets[0].data.push(data.temperature);
