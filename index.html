@@ -2,10 +2,29 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <title>Mon premier site GitHub</title>
+  <title>Données Temps Réel</title>
 </head>
 <body>
-  <h1>Bienvenue sur mon site !</h1>
-  <p>Ceci est un site hébergé gratuitement avec GitHub Pages.</p>
+  <h1>Données IoT en direct</h1>
+  <p>Température : <span id="temp">--</span> °C</p>
+  <p>Tension : <span id="volt">--</span> V</p>
+  <p>Puissance : <span id="power">--</span> W</p>
+
+  <script>
+    async function fetchData() {
+      try {
+        const response = await fetch("https://ac8e-105-101-43-93.ngrok-free.app/data");
+        const data = await response.json();
+        document.getElementById("temp").textContent = data.temperature;
+        document.getElementById("volt").textContent = data.tension;
+        document.getElementById("power").textContent = data.puissance;
+      } catch (error) {
+        console.error("Erreur lors de la récupération :", error);
+      }
+    }
+
+    fetchData(); // Appel initial
+    setInterval(fetchData, 5000); // Rafraîchissement toutes les 5 secondes
+  </script>
 </body>
 </html>
