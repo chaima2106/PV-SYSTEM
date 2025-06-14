@@ -2,28 +2,75 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <title>Données Temps Réel</title>
+  <title>Surveillance PV IoT</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body { font-family: Arial, sans-serif; text-align: center; padding: 20px; background: #f3f3f3; }
+    h1 { color: #007BFF; }
+    .data-block { font-size: 1.5em; margin: 10px 0; }
+    canvas { max-width: 600px; margin: auto; }
+  </style>
 </head>
 <body>
-  <h1>Données IoT en direct</h1>
-  <p>Température : <span id="temp">--</span> °C</p>
-  <p>Tension : <span id="volt">--</span> V</p>
-  <p>Puissance : <span id="power">--</span> W</p>
+  <h1>Données IoT en Temps Réel</h1>
+
+  <div class="data-block">🌡️ Température : <span id="temp">--</span> °C</div>
+  <div class="data-block">🔋 Tension : <span id="volt">--</span> V</div>
+  <div class="data-block">⚡ Puissance : <span id="power">--</span> W</div>
+
+  <h2>📈 Évolution de la température</h2>
+  <canvas id="tempChart"></canvas>
 
   <script>
+    const url = "https://ac8e-105-101-43-93.ngrok-free.app/data"; // Ton URL ngrok Node-RED
+
+    const tempSpan = document.getElementById("temp");
+    const voltSpan = document.getElementById("volt");
+    const powerSpan = document.getElementById("power");
+
+    const ctx = document.getElementById("tempChart").getContext("2d");
+    const tempChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: [],
+        datasets: [{
+          label: 'Température (°C)',
+          data: [],
+          borderColor: 'rgb(255, 99, 132)',
+          tension: 0.2
+        }]
+      },
+      options: {
+        scales: {
+          x: { display: false },
+          y: { beginAtZero: true }
+        }
+      }
+    });
+
     async function fetchData() {
       try {
-        const response = await fetch("https://ac8e-105-101-43-93.ngrok-free.app/data");
-        const data = await response.json();
-        document.getElementById("temp").textContent = data.temperature;
-        document.getElementById("volt").textContent = data.tension;
-        document.getElementById("power").textContent = data.puissance;
-      } catch (error) {
-        console.error("Erreur lors de la récupération :", error);
+        const res = await fetch(url);
+        const data = await res.json();
+
+        tempSpan.textContent = data.temperature;
+        voltSpan.textContent = data.tension;
+        powerSpan.textContent = data.puissance;
+
+        const now = new Date().toLocaleTimeString();
+        if (tempChart.data.labels.length > 10) {
+          tempChart.data.labels.shift();
+          tempChart.data.datasets[0].data.shift();
+        }
+        tempChart.data.labels.push(now);
+        tempChart.data.datasets[0].data.push(data.temperature);
+        tempChart.update();
+      } catch (err) {
+        console.error("Erreur fetch :", err);
       }
     }
 
-    fetchData(); // Appel initial
+    fetchData();
     setInterval(fetchData, 5000); // Rafraîchissement toutes les 5 secondes
   </script>
 </body>
